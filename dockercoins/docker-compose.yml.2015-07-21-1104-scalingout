@@ -95,7 +95,7 @@ worker:
   extra_hosts:
     redis: 52.6.82.5
   links:
-    - rng0:rng
+    - rng
     - hasher
 
 

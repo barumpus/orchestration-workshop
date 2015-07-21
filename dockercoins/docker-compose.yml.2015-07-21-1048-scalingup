@@ -1,0 +1,72 @@
+
+
+#rng:
+#    build: rng
+#    ports:
+#      - "8001:80"
+
+# replace the rng service with multiple copies of it
+rng1:
+  build: rng
+
+rng2:
+  build: rng
+
+rng3:
+  build: rng
+
+
+# add our load balancer 
+
+rng0:
+    image: jpetazzo/hamba
+    links:
+      - rng1
+      - rng2
+      - rng3
+    command: 80 rng1 80 rng2 80 rng3 80
+    ports:
+      - "8001:80"
+
+
+
+
+
+hasher:
+    build: hasher
+    ports:
+      - "8002:80"
+
+webui:
+    build: webui
+    links:
+      - redis
+    ports:
+      - "8000:80"
+    volumes:
+      - "webui/files/:/files/"
+
+redis:
+    image: redis
+
+
+
+#worker:
+#    build: worker
+#    links:
+#      - rng
+#      - hasher
+#      - redis
+
+# update worker service to map from rng to rng0
+# (code in worker references rng e.g. http://rng/...)
+
+worker:
+  build: worker
+  links:
+    - rng0:rng
+    - hasher
+    - redis
+
+
+
